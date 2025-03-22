@@ -1,35 +1,31 @@
 package com.example.simpletodocusatteaching.ui.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.simpletodocusatteaching.ui.components.TodoItemCollection
@@ -42,6 +38,23 @@ import kotlinx.coroutines.launch
 fun TodoHomeScreen(
     viewModel: TodoHomeScreenViewModel = hiltViewModel<TodoHomeScreenViewModel>()
 ) {
+
+    val context = LocalContext.current
+    val uiState = viewModel.uiState.collectAsState().value
+
+    LaunchedEffect(uiState.toastMessage) {
+        if (uiState.toastMessage.isNotEmpty()) {
+            Toast.makeText(context, uiState.toastMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        viewModel.addListener()
+
+        onDispose {
+            viewModel.removeListener()
+        }
+    }
 
     var sheetVisible by remember { mutableStateOf(false) }
     val state = rememberModalBottomSheetState()
@@ -77,37 +90,20 @@ fun TodoHomeScreen(
         containerColor = Color.White
     ) { paddingValues ->
 
-
-        LazyColumn(
-            modifier = Modifier.padding(paddingValues),
-            contentPadding = PaddingValues(18.dp)
-        ) {
-            stickyHeader {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = Color.White),
-                    text = "Title",
-                    color = black,
-                    style = MaterialTheme.typography.displayMedium
-                )
-            }
-            item {
-                TodoItemCollection(
-                    modifier = Modifier.padding(top = 32.dp),
-                    collection = viewModel.collection,
-                    isEditable = true,
-                    onItemClick = { index, state ->
-                        Log.d("TAG", "TodoHomeScreen: index: $index, state: $state")
-                        viewModel.apply {
-                            collection[index] = collection[index].copy(
-                                isChecked = state
-                            )
-                        }
-                    }
-                )
-            }
-        }
+        TodoItemCollection(
+            modifier = Modifier
+                .padding(paddingValues),
+            collection = viewModel.collection.values.toList(),
+            onItemClick = { item ->
+                viewModel.apply {
+                    updateTodo(item)
+                }
+            },
+            onRemove = {
+                viewModel.removeTodo(it)
+            },
+            addTodo = openSheet
+        )
     }
 
 
@@ -121,6 +117,7 @@ fun TodoHomeScreen(
                 onDone = {
                     Log.d("TAG", "TodoHomeScreen: $it")
                     closeSheet()
+                    viewModel.saveToFireStore(item = it)
                 }
             )
         }

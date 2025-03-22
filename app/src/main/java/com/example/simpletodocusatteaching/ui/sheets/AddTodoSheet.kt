@@ -20,14 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.simpletodocusatteaching.ui.components.TodoItemModel
 import com.example.simpletodocusatteaching.ui.theme.SimpleTODOCusatTeachingTheme
 import com.example.simpletodocusatteaching.ui.theme.black
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun AddTodoSheet(
     modifier: Modifier = Modifier,
-    onDone: (note: String) -> Unit
+    onDone: (item: TodoItemModel) -> Unit
 ) {
 
     var taskName by remember { mutableStateOf("") }
@@ -69,7 +71,14 @@ fun AddTodoSheet(
                 .align(alignment = Alignment.CenterHorizontally)
                 .fillMaxWidth(fraction = 0.75f),
             onClick = {
-                onDone(taskName)
+                onDone(
+                    TodoItemModel(
+                        text = taskName,
+                        time = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")),
+                        completed = false,
+                        id = System.currentTimeMillis().toString()
+                    )
+                )
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = black,
