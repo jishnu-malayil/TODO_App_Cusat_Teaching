@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "632704051099",
+    "project_id": "todo-app-cst-teaching",
+    "storage_bucket": "todo-app-cst-teaching.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632704051099:android:3ed48143c96bb1c062233e",
+        "android_client_info": {
+          "package_name": "com.example.simpletodocusatteaching"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgNCq3SHjcM8zmUluodnQBO1tQ_UUuXdI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
