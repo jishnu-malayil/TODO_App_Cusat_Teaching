@@ -2,5 +2,5 @@ package com.example.simpletodocusatteaching.model
 
 data class HomeScreenUIStates (
     val isLoading: Boolean = false,
-    val toastMessage: String = ""
+    val toastMessage: String? = null
 )

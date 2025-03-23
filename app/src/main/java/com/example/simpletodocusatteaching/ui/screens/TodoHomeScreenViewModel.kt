@@ -1,5 +1,6 @@
 package com.example.simpletodocusatteaching.ui.screens
 
+import android.os.Message
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -10,6 +11,7 @@ import com.example.simpletodocusatteaching.model.StorageServicesImpl
 import com.example.simpletodocusatteaching.ui.components.TodoItemModel
 import com.google.firebase.firestore.CollectionReference
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -20,7 +22,7 @@ private const val TAG = "TodoHomeScreenViewModel"
 
 @HiltViewModel
 class TodoHomeScreenViewModel @Inject constructor(
-    val reference: CollectionReference
+    reference: CollectionReference
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeScreenUIStates> =
@@ -29,7 +31,7 @@ class TodoHomeScreenViewModel @Inject constructor(
 
     val storageServices = StorageServicesImpl(reference)
 
-    val collection = mutableStateMapOf<String,TodoItemModel>()
+    val collection = mutableStateMapOf<String, TodoItemModel>()
 
     fun addListener() = viewModelScope.launch {
         storageServices.addListener(
@@ -53,32 +55,32 @@ class TodoHomeScreenViewModel @Inject constructor(
 
     fun saveToFireStore(item: TodoItemModel) = viewModelScope.launch {
         storageServices.saveTodo(item, onResult = { error ->
-            _uiState.update {
-                it.copy(
-                    toastMessage = if (error?.message.isNullOrEmpty()) "Todo saved successfully" else error.message.orEmpty()
-                )
-            }
+            showSnackBar(if (error?.message.isNullOrEmpty()) "Todo saved successfully" else error.message.orEmpty())
         })
     }
 
     fun updateTodo(item: TodoItemModel) = viewModelScope.launch {
         Log.d(TAG, "updateTodo: $item")
-        storageServices.updateTodo(item){ error ->
-            _uiState.update {
-                it.copy(
-                    toastMessage = if (error?.message.isNullOrEmpty()) "Todo updated successfully" else error?.message.orEmpty()
-                )
-            }
+        storageServices.updateTodo(item) { error ->
+            if (error?.message.isNullOrEmpty()) showSnackBar("Todo updated successfully")
+            else showSnackBar(error?.message.orEmpty())
         }
     }
 
     fun removeTodo(item: TodoItemModel) = viewModelScope.launch {
         storageServices.deleteTodo(item) { error ->
-            _uiState.update {
-                it.copy(
-                    toastMessage = if (error?.message.isNullOrEmpty()) "Todo removed successfully" else error?.message.orEmpty()
-                )
-            }
+            if (error?.message.isNullOrEmpty())
+                showSnackBar("Todo removed successfully")
+            else
+                showSnackBar(error.message.orEmpty())
+
         }
+    }
+
+
+    fun showSnackBar(message: String) = viewModelScope.launch {
+        _uiState.update { it.copy(toastMessage = message) }
+        delay(2000)
+        _uiState.update { it.copy(toastMessage = null) }
     }
 }
