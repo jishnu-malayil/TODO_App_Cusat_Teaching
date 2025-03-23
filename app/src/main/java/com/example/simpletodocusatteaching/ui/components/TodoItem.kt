@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -113,10 +114,11 @@ fun TodoItem(
     val swipeToDismissState = rememberSwipeToDismissBoxState(
         positionalThreshold = { with(density) { 24.dp.toPx() } },
         confirmValueChange = {
-            when(it) {
+            when (it) {
                 SwipeToDismissBoxValue.EndToStart -> {
                     onRemove(item)
                 }
+
                 else -> false
             }
 
@@ -132,12 +134,13 @@ fun TodoItem(
                     else -> Color.White
                 }
             )
-            Box (Modifier
-                .fillMaxSize()
-                .background(color)
-            ){
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(color)
+            ) {
                 Icon(
-                    modifier = Modifier.align(Alignment.CenterEnd),
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
                     imageVector = Icons.Filled.Delete,
                     contentDescription = "",
                     tint = black
@@ -158,9 +161,9 @@ fun TodoItem(
                     onCheckedChange(!item.completed)
                 },
                 horizontalArrangement = Arrangement.spacedBy(13.dp),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
-//        if (isEditable) {
+
                 Checkbox(
                     checked = item.completed,
                     onCheckedChange = onCheckedChange,
@@ -170,30 +173,25 @@ fun TodoItem(
                         uncheckedColor = grey400
                     )
                 )
-//        } else {
-//            Box(
-//                modifier = Modifier
-//                    .size(10.dp)
-//                    .clip(CircleShape)
-//                    .background(color = black, shape = CircleShape)
-//            )
-//        }
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(13.dp)
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     Text(
                         text = item.text,
                         style = MaterialTheme.typography.labelMedium,
-                        color = if (item.completed) grey400 else grey500,
+                        color = if (item.completed) grey400 else black,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
-                        textDecoration = if (item.completed) TextDecoration.LineThrough else TextDecoration.None
+                        textDecoration = if (item.completed) TextDecoration.LineThrough else TextDecoration.None,
+                        textAlign = TextAlign.Center
                     )
 
                     Text(
+                        modifier = Modifier.padding(top = 2.dp),
                         text = item.time,
                         style = MaterialTheme.typography.labelMedium,
-                        color = if (item.completed) grey400 else grey500,
+                        color = if (item.completed) grey400 else black,
+                        textAlign = TextAlign.Center,
                         textDecoration = if (item.completed) TextDecoration.LineThrough else TextDecoration.None
                     )
                 }

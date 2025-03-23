@@ -1,7 +1,6 @@
 package com.example.simpletodocusatteaching.ui.screens
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,8 +15,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +22,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.simpletodocusatteaching.ui.components.TodoItemCollection
@@ -39,21 +35,9 @@ fun TodoHomeScreen(
     viewModel: TodoHomeScreenViewModel = hiltViewModel<TodoHomeScreenViewModel>()
 ) {
 
-    val context = LocalContext.current
-    val uiState = viewModel.uiState.collectAsState().value
-
-    LaunchedEffect(uiState.toastMessage) {
-        if (uiState.toastMessage.isNotEmpty()) {
-            Toast.makeText(context, uiState.toastMessage, Toast.LENGTH_SHORT).show()
-        }
-    }
-
     DisposableEffect(Unit) {
         viewModel.addListener()
-
-        onDispose {
-            viewModel.removeListener()
-        }
+        onDispose { viewModel.removeListener() }
     }
 
     var sheetVisible by remember { mutableStateOf(false) }
@@ -66,10 +50,7 @@ fun TodoHomeScreen(
     }
 
     val closeSheet: () -> Unit = {
-        scope.launch { state.hide() }
-            .invokeOnCompletion {
-                sheetVisible = false
-            }
+        scope.launch { state.hide() }.invokeOnCompletion { sheetVisible = false }
     }
 
     Scaffold(
@@ -110,7 +91,8 @@ fun TodoHomeScreen(
     if (sheetVisible) {
         ModalBottomSheet(
             onDismissRequest = closeSheet,
-            sheetState = state
+            sheetState = state,
+            containerColor = Color.White,
         ) {
             AddTodoSheet(
                 modifier = Modifier.padding(16.dp),
@@ -122,5 +104,4 @@ fun TodoHomeScreen(
             )
         }
     }
-
 }
