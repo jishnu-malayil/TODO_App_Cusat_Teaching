@@ -9,7 +9,7 @@ import com.google.firebase.firestore.toObject
 import javax.inject.Inject
 
 private const val TAG = "StorageServicesImpl"
-class StorageServicesImpl @Inject constructor(
+class StorageServicesImpl(
     private val reference: CollectionReference
 ) : StorageServices {
 
